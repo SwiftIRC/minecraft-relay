@@ -8,3 +8,4 @@ logs
 ops.json
 server.properties
 whitelist.json
+__pycache__

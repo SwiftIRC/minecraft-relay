@@ -1,54 +1,63 @@
 import threading
 import time
 from subprocess import Popen, PIPE
+import re
 
 
-def main():
-    mc = Popen(["java", "-jar", "server.jar", "nogui"],
-               stdin=PIPE, stdout=PIPE, bufsize=1, universal_newlines=True)
+class Minecraft():
+    irc = None
+    mc = None
+    output = None
+    input = None
 
-    output = threading.Thread(target=stdout, args=(mc,))
-    output.start()
+    def run(self):
+        self.mc = Popen(["java", "-jar", "server.jar", "nogui"],
+                        stdin=PIPE, stdout=PIPE, bufsize=1, universal_newlines=True)
 
-    input = threading.Thread(target=rawInput, args=(mc,))
-    input.start()
+        self.output = threading.Thread(target=self.stdout)
+        self.output.start()
 
-    time.sleep(5)
+        input = threading.Thread(target=self.rawInput)
+        input.start()
 
-    for i in range(10):
-        communicate(mc, "/say Hi from Main Function")
+    def terminate(self):
+        self.communicate("stop")
+
         time.sleep(10)
 
+        self.mc.terminate()
+        self.output.do_run = False
+        self.input.do_run = False
 
-def terminate(mc, output, input):
-    communicate(mc, "stop")
+    def stdout(self):
+        t = threading.current_thread()
+        while getattr(t, "do_run", True):
+            line = self.mc.stdout.readline()
+            if line:
+                output = line.strip()
+                print(output)
 
-    time.sleep(10)
+                match = re.match(
+                    r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> .*|\* .*)", output)
 
-    mc.terminate()
-    output.do_run = False
-    input.do_run = False
+                if match:
+                    self.irc.privmsg("#minecraft", match.group(1))
 
+    def rawInput(self):
+        t = threading.current_thread()
+        while getattr(t, "do_run", True):
+            message = input("> ")
+            if message == "stop":
+                self.terminate()
+            else:
+                self.communicate(message)
 
-def stdout(mc):
-    t = threading.current_thread()
-    while getattr(t, "do_run", True):
-        line = mc.stdout.readline()
-        if line:
-            print(line.strip())
+    def communicate(self, message):
+        print(message)
+        self.mc.stdin.write("%s\n" % message)
 
+    def privmsg(self, message):
+        self.communicate("say %s" % message)
 
-def rawInput(mc):
-    t = threading.current_thread()
-    while getattr(t, "do_run", True):
-        message = input("> ")
-        mc.stdin.write("%s\n" % message)
-
-
-def communicate(mc, message):
-    print(message)
-    mc.stdin.write("%s\n" % message)
-
-
-if __name__ == "__main__":
-    main()
+    def set_irc(self, irc):
+        self.irc = irc
