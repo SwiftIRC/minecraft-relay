@@ -28,7 +28,7 @@ class Minecraft():
                 print(output)
 
                 privmsg = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> .*|\* .*)", output)
+                    r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*))", output)
 
                 join = re.match(
                     r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)

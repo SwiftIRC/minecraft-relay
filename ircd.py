@@ -45,17 +45,20 @@ class IRC(irc.bot.SingleServerIRCBot):
         # ','.join([channel for channel in self.config['CHANNELS']]))
 
     def on_pubmsg(self, connection, event):
-        if (event.target == "#minecraft"):
-            with self.thread_lock:
-                message = event.arguments[0].strip()
-                message = "<{:s}> {:s}".format(event.source.nick, message)
-                self.mc.privmsg(message)
+        self.handleMessage(connection, event, None)
 
     def on_action(self, connection, event):
+        self.handleMessage(connection, event, "* ")
+
+    def handleMessage(self, connection, event, prefix):
         if (event.target == "#minecraft"):
             with self.thread_lock:
                 message = event.arguments[0].strip()
-                message = "* {:s} {:s}".format(event.source.nick, message)
+                if prefix is None:
+                    message = "<{:s}> {:s}".format(event.source.nick, message)
+                else:
+                    message = "{:s} {:s} {:s}".format(
+                        prefix, event.source.nick, message)
                 self.mc.privmsg(message)
 
     def run(self):
