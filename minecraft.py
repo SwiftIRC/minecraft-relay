@@ -37,11 +37,23 @@ class Minecraft():
                 output = line.strip()
                 print(output)
 
-                match = re.match(
+                privmsg = re.match(
                     r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> .*|\* .*)", output)
 
-                if match:
-                    self.irc.privmsg("#minecraft", match.group(1))
+                join = re.match(
+                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)
+
+                part = re.match(
+                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
+
+                if privmsg:
+                    self.irc.privmsg("#minecraft", privmsg.group(1))
+                elif join:
+                    self.irc.privmsg(
+                        "#minecraft", "--> " + join.group(1))
+                elif part:
+                    self.irc.privmsg(
+                        "#minecraft", "<-- " + part.group(1))
 
     def rawInput(self):
         t = threading.current_thread()
