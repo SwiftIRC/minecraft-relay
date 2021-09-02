@@ -26,12 +26,9 @@ class Minecraft():
         time.sleep(10)
 
         self.mc.terminate()
-        self.output.do_run = False
-        self.input.do_run = False
 
     def stdout(self):
-        t = threading.current_thread()
-        while getattr(t, "do_run", True):
+        while True:
             line = self.mc.stdout.readline()
             if line:
                 output = line.strip()
@@ -56,8 +53,7 @@ class Minecraft():
                         "#minecraft", "<-- " + part.group(1))
 
     def rawInput(self):
-        t = threading.current_thread()
-        while getattr(t, "do_run", True):
+        while True:
             message = input("> ")
             if message == "stop":
                 self.terminate()
