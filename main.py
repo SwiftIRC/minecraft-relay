@@ -13,7 +13,6 @@ def main():
     mc.set_irc(irc)
     irc.set_mc(mc)
 
-    # mc.set_thread_lock(thread_lock)
     irc.set_thread_lock(thread_lock)
 
     th = threading.Thread(target=irc.run)
