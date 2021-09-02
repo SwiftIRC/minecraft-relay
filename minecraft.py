@@ -20,13 +20,6 @@ class Minecraft():
         input = threading.Thread(target=self.rawInput)
         input.start()
 
-    def terminate(self):
-        self.communicate("stop")
-
-        time.sleep(10)
-
-        self.mc.terminate()
-
     def stdout(self):
         while True:
             line = self.mc.stdout.readline()
@@ -55,10 +48,7 @@ class Minecraft():
     def rawInput(self):
         while True:
             message = input("> ")
-            if message == "stop":
-                self.terminate()
-            else:
-                self.communicate(message)
+            self.communicate(message)
 
     def communicate(self, message):
         print(message)
