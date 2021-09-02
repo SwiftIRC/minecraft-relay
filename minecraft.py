@@ -17,8 +17,8 @@ class Minecraft():
         self.output = threading.Thread(target=self.stdout)
         self.output.start()
 
-        input = threading.Thread(target=self.rawInput)
-        input.start()
+        self.input = threading.Thread(target=self.rawInput)
+        self.input.start()
 
     def stdout(self):
         while True:
