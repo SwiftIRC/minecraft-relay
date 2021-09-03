@@ -1,0 +1,8 @@
+{
+    "nick": "Minecraft",
+    "network" "irc.swiftirc.net",
+    "port": 6667,
+    "channel": "#minecraft",
+    "realname": "Minecraft Relay",
+    "quitmsg": "Adios!"
+}
