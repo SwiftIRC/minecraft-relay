@@ -9,3 +9,7 @@ ops.json
 server.properties
 whitelist.json
 __pycache__
+config.json
+.idea
+.workplace
+venv
