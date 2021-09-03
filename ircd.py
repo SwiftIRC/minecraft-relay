@@ -2,25 +2,27 @@
 
 import irc.bot
 import re
+import json
 
 
 class IRC(irc.bot.SingleServerIRCBot):
     thread_lock = None
     running = True
 
-    # config = None
+    config = None
     connection = None
     mc = None
 
     def __init__(self):
+        with open("config.json") as json_data_file:
+            self.config = json.load(json_data_file)
+
         irc.client.ServerConnection.buffer_class.encoding = "latin-1"
         irc.bot.SingleServerIRCBot.__init__(self, [
-            ("fiery.swiftirc.net",
-             6667)],
-            "Minecraft",
-            "Minecraft Relay")
-
-        # self.config = config
+            (self.config.network,
+             self.config.port)],
+            self.config.nick,
+            self.config.realname)
 
     def set_mc(self, mc):
         self.mc = mc
@@ -30,7 +32,7 @@ class IRC(irc.bot.SingleServerIRCBot):
 
     def close(self):
         self.running = False
-        self.connection.quit("Adios!")
+        self.connection.quit(self.config.quitmsg)
 
     def privmsg(self, target, message):
         self.connection.privmsg(target, message.strip())
@@ -41,8 +43,7 @@ class IRC(irc.bot.SingleServerIRCBot):
     def on_welcome(self, connection, event):
         self.connection = connection
 
-        connection.join("#minecraft")
-        # ','.join([channel for channel in self.config['CHANNELS']]))
+        connection.join(self.config.channel)
 
     def on_pubmsg(self, connection, event):
         self.handleMessage(connection, event, None)
@@ -51,7 +52,7 @@ class IRC(irc.bot.SingleServerIRCBot):
         self.handleMessage(connection, event, "* ")
 
     def handleMessage(self, connection, event, prefix):
-        if (event.target == "#minecraft"):
+        if (event.target.lower() == "#minecraft"):
             with self.thread_lock:
                 message = event.arguments[0].strip()
                 if prefix is None:
@@ -63,11 +64,3 @@ class IRC(irc.bot.SingleServerIRCBot):
 
     def run(self):
         self.start()
-
-        if self.running:
-            self.running = False
-            ircd = IRC({"irc": self.config})
-            ircd.set_mc(self.mc)
-            self.mc.set_irc(ircd)
-            ircd.set_thread_lock(self.thread_lock)
-            ircd.run()

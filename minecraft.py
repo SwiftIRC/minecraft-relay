@@ -9,6 +9,10 @@ class Minecraft():
     mc = None
     output = None
     input = None
+    thread_lock = None
+
+    def set_thread_lock(self, lock):
+        self.thread_lock = lock
 
     def run(self):
         self.mc = Popen(["java", "-jar", "server.jar", "nogui"],
@@ -22,28 +26,29 @@ class Minecraft():
 
     def stdout(self):
         while True:
-            line = self.mc.stdout.readline()
-            if line:
-                output = line.strip()
-                print(output)
+            with self.thread_lock:
+                line = self.mc.stdout.readline()
+                if line:
+                    output = line.strip()
+                    print(output)
 
-                privmsg = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*))", output)
+                    privmsg = re.match(
+                        r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*))", output)
 
-                join = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)
+                    join = re.match(
+                        r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)
 
-                part = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
+                    part = re.match(
+                        r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
 
-                if privmsg:
-                    self.irc.privmsg("#minecraft", privmsg.group(1))
-                elif join:
-                    self.irc.privmsg(
-                        "#minecraft", "--> " + join.group(1))
-                elif part:
-                    self.irc.privmsg(
-                        "#minecraft", "<-- " + part.group(1))
+                    if privmsg:
+                        self.irc.privmsg("#minecraft", privmsg.group(1))
+                    elif join:
+                        self.irc.privmsg(
+                            "#minecraft", "--> " + join.group(1))
+                    elif part:
+                        self.irc.privmsg(
+                            "#minecraft", "<-- " + part.group(1))
 
     def rawInput(self):
         while True:
