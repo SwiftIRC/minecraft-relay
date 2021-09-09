@@ -32,23 +32,23 @@ class Minecraft():
                     output = line.strip()
                     print(output)
 
-                    privmsg = re.match(
-                        r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*))", output)
-
                     join = re.match(
                         r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)
 
                     part = re.match(
                         r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
 
-                    if privmsg:
-                        self.irc.privmsg("#minecraft", privmsg.group(1))
-                    elif join:
+                    privmsg = re.match(
+                        r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*)|\w+\s\w.*)", output)
+
+                    if join:
                         self.irc.privmsg(
                             "#minecraft", "--> " + join.group(1))
                     elif part:
                         self.irc.privmsg(
                             "#minecraft", "<-- " + part.group(1))
+                    elif privmsg:
+                        self.irc.privmsg("#minecraft", privmsg.group(1))
 
     def rawInput(self):
         while True:
