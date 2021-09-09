@@ -19,10 +19,10 @@ class IRC(irc.bot.SingleServerIRCBot):
 
         irc.client.ServerConnection.buffer_class.encoding = "latin-1"
         irc.bot.SingleServerIRCBot.__init__(self, [
-            (self.config.network,
-             self.config.port)],
-            self.config.nick,
-            self.config.realname)
+            (self.config['network'],
+             self.config['port'])],
+            self.config['nick'],
+            self.config['realname'])
 
     def set_mc(self, mc):
         self.mc = mc
@@ -32,7 +32,7 @@ class IRC(irc.bot.SingleServerIRCBot):
 
     def close(self):
         self.running = False
-        self.connection.quit(self.config.quitmsg)
+        self.connection.quit(self.config['quitmsg'])
 
     def privmsg(self, target, message):
         self.connection.privmsg(target, message.strip())
@@ -43,7 +43,7 @@ class IRC(irc.bot.SingleServerIRCBot):
     def on_welcome(self, connection, event):
         self.connection = connection
 
-        connection.join(self.config.channel)
+        connection.join(self.config['channel'])
 
     def on_pubmsg(self, connection, event):
         self.handleMessage(connection, event, None)
@@ -51,7 +51,7 @@ class IRC(irc.bot.SingleServerIRCBot):
     def on_action(self, connection, event):
         self.handleMessage(connection, event, "* ")
 
-    def handleMessage(self, connection, event, prefix):
+    def handleMessage(self, event, prefix):
         if (event.target.lower() == "#minecraft"):
             with self.thread_lock:
                 message = event.arguments[0].strip()
