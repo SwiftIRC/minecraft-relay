@@ -39,7 +39,7 @@ class Minecraft():
                         r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
 
                     privmsg = re.match(
-                        r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*)|\w+\s\w.*)", output)
+                        r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
 
                     if join:
                         self.irc.privmsg(
