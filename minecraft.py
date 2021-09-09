@@ -52,7 +52,7 @@ class Minecraft():
                             "#minecraft", "<-- " + part.group(1))
                     elif advancement:
                         self.irc.privmsg(
-                            "#minecraft", "<-- " + advancement.group(1))
+                            "#minecraft", advancement.group(1))
                     elif privmsg:
                         self.irc.privmsg("#minecraft", privmsg.group(1))
 
