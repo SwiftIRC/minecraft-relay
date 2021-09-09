@@ -38,6 +38,9 @@ class Minecraft():
                     part = re.match(
                         r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
 
+                    advancement = re.match(
+                        r"\[[^]]+\] \[Server thread/INFO\]: (\S+ has made the advancement.*)", output)
+
                     privmsg = re.match(
                         r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
 
@@ -47,6 +50,9 @@ class Minecraft():
                     elif part:
                         self.irc.privmsg(
                             "#minecraft", "<-- " + part.group(1))
+                    elif advancement:
+                        self.irc.privmsg(
+                            "#minecraft", "<-- " + advancement.group(1))
                     elif privmsg:
                         self.irc.privmsg("#minecraft", privmsg.group(1))
 
