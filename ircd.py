@@ -51,7 +51,7 @@ class IRC(irc.bot.SingleServerIRCBot):
     def on_action(self, connection, event):
         self.handleMessage(connection, event, "* ")
 
-    def handleMessage(self, event, prefix):
+    def handleMessage(self, connection, event, prefix):
         if (event.target.lower() == "#minecraft"):
             with self.thread_lock:
                 message = event.arguments[0].strip()
