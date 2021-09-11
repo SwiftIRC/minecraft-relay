@@ -38,7 +38,7 @@ class Minecraft():
                     r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
 
                 advancement = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+ has made the advancement.*)", output)
+                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+ has (made the advancement|completed the challenge).*)", output)
 
                 privmsg = re.match(
                     r"\[[^]]+\] \[Server thread/INFO\]: (<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
