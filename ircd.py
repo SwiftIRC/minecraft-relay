@@ -54,13 +54,19 @@ class IRC(irc.bot.SingleServerIRCBot):
     def handleMessage(self, connection, event, prefix):
         if (event.target.lower() == "#minecraft"):
             with self.thread_lock:
-                message = event.arguments[0].strip()
+                message = self.escape_at_sign(event.arguments[0].strip())
                 if prefix is None:
                     message = "<{:s}> {:s}".format(event.source.nick, message)
                 else:
                     message = "{:s} {:s} {:s}".format(
                         prefix, event.source.nick, message)
-                self.mc.privmsg(message)
+                self.mc.privmsg(self.strip_colors(message))
+
+    def strip_colors(self, message):
+        return re.sub(r'\x03(?:\d{1,2}(?:,\d{1,2})?)?|[\x02\x09\x013\x0f\x015\x1f\x016]', '', message)
+
+    def escape_at_sign(self, message):
+        return message.replace("@", "@\\")
 
     def run(self):
         self.start()
