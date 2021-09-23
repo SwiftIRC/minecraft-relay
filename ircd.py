@@ -63,7 +63,7 @@ class IRC(irc.bot.SingleServerIRCBot):
                 self.mc.privmsg(self.strip_colors(message))
 
     def strip_colors(self, message):
-        return re.sub(r'\x03(?:\d{1,2}(?:,\d{1,2})?)?|[\x02\x09\x013\x0f\x015\x1f\x016]', '', message)
+        return re.sub(r'\x03(?:\d{1,2}(?:,\d{1,2})?)?|[\x02\x09\x13\x0f\x15\x1f\x16]', '', message)
 
     def escape_at_sign(self, message):
         return message.replace("@", "@\\")
