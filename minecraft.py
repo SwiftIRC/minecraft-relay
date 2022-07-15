@@ -10,6 +10,7 @@ class Minecraft():
     output = None
     input = None
     thread_lock = None
+    players = []
 
     def set_thread_lock(self, lock):
         self.thread_lock = lock
@@ -46,9 +47,11 @@ class Minecraft():
                 if join:
                     self.irc.privmsg(
                         "#minecraft", "--> " + join.group(1))
+                    self.players.append(join.group(1))
                 elif part:
                     self.irc.privmsg(
                         "#minecraft", "<-- " + part.group(1))
+                    self.players.remove(part.group(1))
                 elif advancement:
                     self.irc.privmsg(
                         "#minecraft", advancement.group(1))
@@ -69,3 +72,6 @@ class Minecraft():
 
     def set_irc(self, irc):
         self.irc = irc
+
+    def get_players(self):
+        return self.players

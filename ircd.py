@@ -68,5 +68,8 @@ class IRC(irc.bot.SingleServerIRCBot):
     def escape_at_sign(self, message):
         return message.replace("@", "@\\")
 
+                if re.match(r'[!@.+-](players|online)', message):
+                    self.privmsg(event.target, self.mc.get_players())
+
     def run(self):
         self.start()
