@@ -62,14 +62,14 @@ class IRC(irc.bot.SingleServerIRCBot):
                         prefix, event.source.nick, message)
                 self.mc.privmsg(self.strip_colors(message))
 
+                if re.match(r'[!@.+-](players|online)', message):
+                    self.privmsg(event.target, self.mc.get_players())
+
     def strip_colors(self, message):
         return re.sub(r'\x03(?:\d{1,2}(?:,\d{1,2})?)?|[\x02\x09\x13\x0f\x15\x1f\x16]', '', message)
 
     def escape_at_sign(self, message):
         return message.replace("@", "@\\")
-
-                if re.match(r'[!@.+-](players|online)', message):
-                    self.privmsg(event.target, self.mc.get_players())
 
     def run(self):
         self.start()
