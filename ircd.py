@@ -57,8 +57,8 @@ class IRC(irc.bot.SingleServerIRCBot):
                 message = self.escape_at_sign(event.arguments[0].strip())
 
                 if re.match(r'[!@.+-](players|online)', message):
-                    self.privmsg(event.target, ', '.join(
-                        self.mc.get_players()))
+                    self.privmsg(event.target, "Online players: {}".format(', '.join(
+                        self.mc.get_players())))
                 else:
                     if prefix is None:
                         message = "<{:s}> {:s}".format(
