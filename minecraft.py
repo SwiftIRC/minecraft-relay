@@ -42,7 +42,7 @@ class Minecraft():
                     r"\[[^]]+\] \[Server thread/INFO\]: (\S+ has (made the advancement|completed the challenge).*)", output)
 
                 privmsg = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
+                    r"\[[^]]+\] \[Server thread/INFO\]: (\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
 
                 if join:
                     self.irc.privmsg(
