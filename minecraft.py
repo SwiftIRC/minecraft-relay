@@ -33,7 +33,7 @@ class Minecraft():
                 print(output)
 
                 join = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) joined the game", output)
+                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) (\(formerly known as \S+\) )?joined the game", output)
 
                 part = re.match(
                     r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
@@ -46,7 +46,7 @@ class Minecraft():
 
                 if join:
                     self.irc.privmsg(
-                        "#minecraft", "--> " + join.group(1))
+                        "#minecraft", "--> {} {}".format(join.group(1), join.group(2) if join.group(2) != None else ''))
                     self.players.append(join.group(1))
                 elif part:
                     self.irc.privmsg(
