@@ -16,7 +16,7 @@ class Minecraft():
         self.thread_lock = lock
 
     def run(self):
-        self.mc = Popen(["java", "-jar", "server.jar", "nogui"],
+        self.mc = Popen(["java", "-Xmx15512m", "-jar", "server.jar", "nogui"],
                         stdin=PIPE, stdout=PIPE, bufsize=1, universal_newlines=True)
 
         self.output = threading.Thread(target=self.stdout)
@@ -33,30 +33,37 @@ class Minecraft():
                 print(output)
 
                 join = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) (\(formerly known as \S+\) )?joined the game", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) (\(formerly known as \S+\) )?joined the game", output)
 
                 part = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+) left the game", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) left the game", output)
 
                 advancement = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (\S+ has (made the advancement|completed the challenge|has reached the goal).*)", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+ has (made the advancement|completed the challenge|has reached the goal).*)", output)
 
                 privmsg = re.match(
-                    r"\[[^]]+\] \[Server thread/INFO\]: (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
 
                 if join:
+                    nick = join.group(1)
+                    if ';' in nick:
+                        nick = nick[10:]
                     self.irc.privmsg(
-                        "#minecraft", "--> {} {}".format(join.group(1), join.group(2) if join.group(2) != None else ''))
-                    self.players.append(join.group(1))
+                        "#minecraft", "--> {} {}".format(nick, join.group(2) if join.group(2) != None else ''))
+                    self.players.append(nick)
                 elif part:
+                    nick = part.group(1)
+                    if ';' in nick:
+                        nick = nick[10:]
                     self.irc.privmsg(
-                        "#minecraft", "<-- " + part.group(1))
-                    self.players.remove(part.group(1))
+                        "#minecraft", "<-- " + nick)
+                    self.players.remove(nick)
                 elif advancement:
                     self.irc.privmsg(
                         "#minecraft", advancement.group(1))
                 elif privmsg:
-                    self.irc.privmsg("#minecraft", privmsg.group(1))
+                    if not privmsg.group(1).startswith('UUID of player '):
+                        self.irc.privmsg("#minecraft", privmsg.group(1))
 
     def rawInput(self):
         while True:
