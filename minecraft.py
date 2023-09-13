@@ -42,11 +42,15 @@ class Minecraft():
                 advancement = re.match(
                     r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)", output)
 
+                objective = re.match(
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]", output)
+
+                trigger = re.match(
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> !(.*))$", output)
+
                 privmsg = re.match(
                     r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
 
-                objective = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]", output)
 
                 if join:
                     nick = join.group(1)
@@ -66,9 +70,21 @@ class Minecraft():
                     adv = advancement.group(1)
                     if ';' in adv:
                         new_advancement = re.match(r".+(\[[^]]+\]).+", adv)
-                        adv = ' '.join(advancement.group(2), new_advancement.group(1))
+                        adv = ' '.join([advancement.group(2), new_advancement.group(1)])
                     self.irc.privmsg(
                         "#minecraft", adv)
+                elif trigger:
+                    cmd = trigger.group(2)
+
+                    if cmd.startswith("calc "):
+                        equation = cmd[5:]
+
+                        if re.match(r"^[0-9\+\-\*\/\(\)\. ]+$", equation):
+                            try:
+                                self.privmsg(str(eval(equation)))
+                            except:
+                                self.privmsg("Error")
+
                 elif privmsg:
                     if not privmsg.group(1).startswith('UUID of player ') and not (privmsg.group(1).startswith('Player profile key for ') and privmsg.group(1).endswith(' has expired!')):
                         self.irc.privmsg("#minecraft", privmsg.group(1))
