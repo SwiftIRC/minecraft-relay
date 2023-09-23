@@ -1,8 +1,7 @@
-import threading
-import time
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, check_output
 import random
 import re
+import threading
 
 
 class Minecraft():
@@ -92,11 +91,7 @@ class Minecraft():
                     cmd = objective.group(1)
 
                     if cmd == "!fortune":
-                        fortune = self.fortune()
-                        while len(fortune) > 150:
-                            fortune = self.fortune()
-
-                        self.privmsg(fortune.replace("\n", " ").replace("\r", ""))
+                        self.privmsg(self.fortune().replace("\n", " ").replace("\r", ""))
 
 
     def rawInput(self):
@@ -118,6 +113,4 @@ class Minecraft():
         return self.players
 
     def fortune(self):
-        with open('/usr/share/games/fortunes/fortunes') as f:
-            fortunes = f.readlines()
-            return random.choice(''.join(fortunes).split('%'))
+        return check_output(["/usr/games/fortune", "-s"])
