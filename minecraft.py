@@ -91,8 +91,7 @@ class Minecraft():
                     cmd = objective.group(1)
 
                     if cmd == "!fortune":
-                        self.privmsg(self.fortune().replace("\n", " ").replace("\r", ""))
-
+                        self.privmsg("[Fortune] {}".format(self.fortune().replace("\n", " ").replace("\r", "")))
 
     def rawInput(self):
         while True:
