@@ -112,9 +112,13 @@ class Minecraft:
                     # elif cmd == "register":
 
                 elif privmsg:
-                    if not privmsg.group(1).startswith("UUID of player ") and not (
-                        privmsg.group(1).startswith("Player profile key for ")
-                        and privmsg.group(1).endswith(" has expired!")
+                    if (
+                        not privmsg.group(1).startswith("UUID of player ")
+                        and not (
+                            privmsg.group(1).startswith("Player profile key for ")
+                            and privmsg.group(1).endswith(" has expired!")
+                        )
+                        and not privmsg.group(1).startswith("Teleported ")
                     ):
                         self.irc.privmsg("#minecraft", privmsg.group(1))
                 elif objective:
