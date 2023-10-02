@@ -4,7 +4,7 @@ import re
 import threading
 
 
-class Minecraft():
+class Minecraft:
     irc = None
     mc = None
     output = None
@@ -16,8 +16,13 @@ class Minecraft():
         self.thread_lock = lock
 
     def run(self):
-        self.mc = Popen(["java", "-Xmx15512m", "-jar", "server.jar", "nogui"],
-                        stdin=PIPE, stdout=PIPE, bufsize=1, universal_newlines=True)
+        self.mc = Popen(
+            ["java", "-Xmx15512m", "-jar", "server.jar", "nogui"],
+            stdin=PIPE,
+            stdout=PIPE,
+            bufsize=1,
+            universal_newlines=True,
+        )
 
         self.output = threading.Thread(target=self.stdout)
         self.output.start()
@@ -33,45 +38,58 @@ class Minecraft():
                 print(output)
 
                 join = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) (\(formerly known as \S+\) )?joined the game", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) (\(formerly known as \S+\) )?joined the game",
+                    output,
+                )
 
                 part = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) left the game", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) left the game",
+                    output,
+                )
 
                 advancement = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)",
+                    output,
+                )
 
                 objective = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]",
+                    output,
+                )
 
                 trigger = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> !(.*))$", output)
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> !(.*))$",
+                    output,
+                )
 
                 privmsg = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$", output)
-
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$",
+                    output,
+                )
 
                 if join:
                     nick = join.group(1)
-                    if ';' in nick:
+                    if ";" in nick:
                         nick = nick[10:]
                     self.irc.privmsg(
-                        "#minecraft", "--> {} {}".format(nick, join.group(2) if join.group(2) != None else ''))
+                        "#minecraft",
+                        "--> {} {}".format(
+                            nick, join.group(2) if join.group(2) != None else ""
+                        ),
+                    )
                     self.players.append(nick)
                 elif part:
                     nick = part.group(1)
-                    if ';' in nick:
+                    if ";" in nick:
                         nick = nick[10:]
-                    self.irc.privmsg(
-                        "#minecraft", "<-- " + nick)
+                    self.irc.privmsg("#minecraft", "<-- " + nick)
                     self.players.remove(nick)
                 elif advancement:
                     adv = advancement.group(1)
-                    if ';' in adv:
+                    if ";" in adv:
                         new_advancement = re.match(r".+(\[[^]]+\]).+", adv)
-                        adv = ' '.join([advancement.group(2), new_advancement.group(1)])
-                    self.irc.privmsg(
-                        "#minecraft", adv)
+                        adv = " ".join([advancement.group(2), new_advancement.group(1)])
+                    self.irc.privmsg("#minecraft", adv)
                 elif trigger:
                     cmd = trigger.group(2)
 
@@ -84,18 +102,25 @@ class Minecraft():
                             except:
                                 self.privmsg("Error")
 
+                    # elif cmd == "register":
+
                 elif privmsg:
-                    if not privmsg.group(1).startswith('UUID of player ') and not (privmsg.group(1).startswith('Player profile key for ') and privmsg.group(1).endswith(' has expired!')):
+                    if not privmsg.group(1).startswith("UUID of player ") and not (
+                        privmsg.group(1).startswith("Player profile key for ")
+                        and privmsg.group(1).endswith(" has expired!")
+                    ):
                         self.irc.privmsg("#minecraft", privmsg.group(1))
                 elif objective:
                     cmd = objective.group(1)
 
                     if cmd == "!fortune":
-                        self.privmsg("[Fortune] {}".format(
-                            self.fortune()
-                            .decode("utf-8")
-                            .replace("\n", " ")
-                            .replace("\r", ""))
+                        self.privmsg(
+                            "[Fortune] {}".format(
+                                self.fortune()
+                                .decode("utf-8")
+                                .replace("\n", " ")
+                                .replace("\r", "")
+                            )
                         )
 
     def rawInput(self):
