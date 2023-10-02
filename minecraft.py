@@ -1,3 +1,4 @@
+import json
 from subprocess import Popen, PIPE, check_output
 import random
 import re
@@ -136,22 +137,23 @@ class Minecraft:
                     if objective == "tentacle_tower_elevator":
                         with open("data/tentacle_tower_elevator.json", "r") as f:
                             data = f.read()
-                            default_coord = data["floors"]["1"]
+                            j = json.loads(data)
+                            default_coord = j["floors"]["1"]
                             if value < 0:
                                 player_id = getPlayerIdByName(player)
                                 floor_number = None
-                                for tenant in data:
+                                for tenant in j:
                                     if tenant["player"] == player_id:
                                         floor_number = tenant["floor"]
                                         continue
                                 floor_coords = (
-                                    data["floors"][str(floor_number)]
-                                    if data["floors"][str(floor_number)]
+                                    j["floors"][str(floor_number)]
+                                    if j["floors"][str(floor_number)]
                                     else default_coord
                                 )
 
                             else:
-                                floor_coords = data.get("floors", {}).get(
+                                floor_coords = j.get("floors", {}).get(
                                     value, default_coord  # default to main floor
                                 )
                             self.communicate(
