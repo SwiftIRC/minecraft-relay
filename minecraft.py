@@ -139,12 +139,12 @@ class Minecraft:
                             data = f.read()
                             j = json.loads(data)
                             default_coord = j["floors"]["1"]
-                            if value < 0:
+                            if int(value) < 0:
                                 player_id = getPlayerIdByName(player)
                                 floor_number = None
                                 for tenant in j:
-                                    if tenant["player"] == player_id:
-                                        floor_number = tenant["floor"]
+                                    if int(tenant["player"]) == int(player_id):
+                                        floor_number = int(tenant["floor"])
                                         continue
                                 floor_coords = (
                                     j["floors"][str(floor_number)]
