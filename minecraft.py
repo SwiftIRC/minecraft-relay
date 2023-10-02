@@ -161,7 +161,7 @@ class Minecraft:
                                     value, default_coord  # default to main floor
                                 )
                             self.communicate(
-                                "execute at {} in minecraft:overworld run tp @a[distance=..5] {}".format(
+                                "execute at {} in minecraft:overworld run tp @a[distance=..3] {}".format(
                                     player, floor_coords
                                 )
                             )
