@@ -136,17 +136,17 @@ class Minecraft:
                     if objective == "tentacle_tower_elevator":
                         with open("data/tentacle_tower_elevator.json", "r") as f:
                             data = f.read()
-                            default_coord = data.floors["1"]
+                            default_coord = data["floors"]["1"]
                             if value < 0:
                                 player_id = getPlayerIdByName(player)
                                 floor_number = None
                                 for tenant in data:
-                                    if tenant.player == player_id:
-                                        floor_number = tenant.floor
+                                    if tenant["player"] == player_id:
+                                        floor_number = tenant["floor"]
                                         continue
                                 floor_coords = (
-                                    data.floors[str(floor_number)]
-                                    if data.floors[str(floor_number)]
+                                    data["floors"][str(floor_number)]
+                                    if data["floors"][str(floor_number)]
                                     else default_coord
                                 )
 
