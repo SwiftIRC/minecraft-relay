@@ -2,6 +2,7 @@ from subprocess import Popen, PIPE, check_output
 import random
 import re
 import threading
+from mcfunctionhelper import getPlayerIdByName
 
 
 class Minecraft:
@@ -54,6 +55,11 @@ class Minecraft:
 
                 objective = re.match(
                     r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]",
+                    output,
+                )
+
+                score = re.match(
+                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: (?:Set|Added \d+ to) \[(\w+)\] for ([\w-]+) to (-?\d+)\]",
                     output,
                 )
 
@@ -122,6 +128,48 @@ class Minecraft:
                                 .replace("\r", "")
                             )
                         )
+                elif score:
+                    objective = score.group(1)
+                    player = score.group(2)
+                    value = score.group(3)
+
+                    if objective == "tentacle_tower_elevator":
+                        with open("data/tentacle_tower_elevator.json", "r") as f:
+                            data = f.read()
+                            default_coord = data.floors["1"]
+                            if value < 0:
+                                player_id = getPlayerIdByName(player)
+                                floor_number = None
+                                for tenant in data:
+                                    if tenant.player == player_id:
+                                        floor_number = tenant.floor
+                                        continue
+                                floor_coords = (
+                                    data.floors[str(floor_number)]
+                                    if data.floors[str(floor_number)]
+                                    else default_coord
+                                )
+
+                            else:
+                                floor_coords = data.get("floors", {}).get(
+                                    value, default_coord  # default to main floor
+                                )
+                            self.communicate(
+                                "execute at {} in minecraft:overworld run tp @a[distance=..5] {}".format(
+                                    player, floor_coords
+                                )
+                            )
+                            self.communicate(
+                                "execute at {} run function custom:buildings/elevator/ding".format(
+                                    player
+                                )
+                            )
+
+                            self.communicate(
+                                "scoreboard players reset {} tentacle_tower_elevator".format(
+                                    player
+                                )
+                            )
 
     def rawInput(self):
         while True:
