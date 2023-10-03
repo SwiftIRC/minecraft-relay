@@ -34,148 +34,169 @@ class Minecraft:
 
     def stdout(self):
         while True:
-            line = self.mc.stdout.readline()
-            if line:
-                output = line.strip()
-                print(output)
+            try:
+                line = self.mc.stdout.readline()
+                if line:
+                    output = line.strip()
+                    print(output)
 
-                join = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) (\(formerly known as \S+\) )?joined the game",
-                    output,
-                )
-
-                part = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) left the game",
-                    output,
-                )
-
-                advancement = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)",
-                    output,
-                )
-
-                objective = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]",
-                    output,
-                )
-
-                score = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: (?:Set|Added \d+ to) \[(\w+)\] for ([\w-]+) to (-?\d+)\]",
-                    output,
-                )
-
-                trigger = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> !(.*))$",
-                    output,
-                )
-
-                privmsg = re.match(
-                    r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$",
-                    output,
-                )
-
-                if join:
-                    nick = join.group(1)
-                    if ";" in nick:
-                        nick = nick[10:]
-                    self.irc.privmsg(
-                        "#minecraft",
-                        "--> {} {}".format(
-                            nick, join.group(2) if join.group(2) != None else ""
-                        ),
+                    join = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) (\(formerly known as \S+\) )?joined the game",
+                        output,
                     )
-                    self.players.append(nick)
-                elif part:
-                    nick = part.group(1)
-                    if ";" in nick:
-                        nick = nick[10:]
-                    self.irc.privmsg("#minecraft", "<-- " + nick)
-                    self.players.remove(nick)
-                elif advancement:
-                    adv = advancement.group(1)
-                    if ";" in adv:
-                        new_advancement = re.match(r".+(\[[^]]+\]).+", adv)
-                        adv = " ".join([advancement.group(2), new_advancement.group(1)])
-                    self.irc.privmsg("#minecraft", adv)
-                elif trigger:
-                    cmd = trigger.group(2)
 
-                    if cmd.startswith("calc "):
-                        equation = cmd[5:]
+                    part = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (\S+) left the game",
+                        output,
+                    )
 
-                        if re.match(r"^[0-9\+\-\*\/\(\)\. ]+$", equation):
-                            try:
-                                self.privmsg(str(eval(equation)))
-                            except:
-                                self.privmsg("Error")
+                    advancement = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)",
+                        output,
+                    )
 
-                    # elif cmd == "register":
+                    objective = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: Created new objective \[([^]]+)\]\]",
+                        output,
+                    )
 
-                elif privmsg:
-                    if (
-                        not privmsg.group(1).startswith("UUID of player ")
-                        and not (
-                            privmsg.group(1).startswith("Player profile key for ")
-                            and privmsg.group(1).endswith(" has expired!")
+                    score = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): \S+\[@: (?:Set|Added \d+ to) \[(\w+)\] for ([\w-]+) to (-?\d+)\]",
+                        output,
+                    )
+
+                    trigger = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> !(.*))$",
+                        output,
+                    )
+
+                    privmsg = re.match(
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): (?:\[Not Secure\])? ?(?!<Server>)(<[^>]+> (.*)|\* (.*)|[^:\[\]*/]+)$",
+                        output,
+                    )
+
+                    if join:
+                        nick = join.group(1)
+                        if ";" in nick:
+                            nick = nick[10:]
+                        self.irc.privmsg(
+                            "#minecraft",
+                            "--> {} {}".format(
+                                nick, join.group(2) if join.group(2) != None else ""
+                            ),
                         )
-                        and not privmsg.group(1).startswith("Teleported ")
-                    ):
-                        self.irc.privmsg("#minecraft", privmsg.group(1))
-                elif objective:
-                    cmd = objective.group(1)
-
-                    if cmd == "!fortune":
-                        self.privmsg(
-                            "[Fortune] {}".format(
-                                self.fortune()
-                                .decode("utf-8")
-                                .replace("\n", " ")
-                                .replace("\r", "")
+                        self.players.append(nick)
+                    elif part:
+                        nick = part.group(1)
+                        if ";" in nick:
+                            nick = nick[10:]
+                        self.irc.privmsg("#minecraft", "<-- " + nick)
+                        self.players.remove(nick)
+                    elif advancement:
+                        adv = advancement.group(1)
+                        if ";" in adv:
+                            new_advancement = re.match(r".+(\[[^]]+\]).+", adv)
+                            adv = " ".join(
+                                [advancement.group(2), new_advancement.group(1)]
                             )
-                        )
-                elif score:
-                    objective = score.group(1)
-                    player = score.group(2)
-                    value = score.group(3)
+                        self.irc.privmsg("#minecraft", adv)
+                    elif trigger:
+                        cmd = trigger.group(2)
 
-                    if objective == "tentacle_tower_elevator":
-                        with open("data/tentacle_tower_elevator.json", "r") as f:
-                            data = f.read()
-                            j = json.loads(data)
-                            default_coord = j["floors"]["1"]
-                            if int(value) < 0:
-                                player_id = getPlayerIdByName(player)
-                                floor_number = None
-                                for tenant in j:
-                                    if int(tenant["player"]) == int(player_id):
-                                        floor_number = int(tenant["floor"])
-                                        continue
-                                floor_coords = (
-                                    j["floors"][str(floor_number)]
-                                    if j["floors"][str(floor_number)]
-                                    else default_coord
+                        if cmd.startswith("calc "):
+                            equation = cmd[5:]
+
+                            if re.match(r"^[0-9\+\-\*\/\(\)\. ]+$", equation):
+                                try:
+                                    self.privmsg(str(eval(equation)))
+                                except:
+                                    self.privmsg("Error")
+
+                        # elif cmd == "register":
+
+                    elif privmsg:
+                        if (
+                            not privmsg.group(1).startswith("UUID of player ")
+                            and not (
+                                privmsg.group(1).startswith("Player profile key for ")
+                                and privmsg.group(1).endswith(" has expired!")
+                            )
+                            and not privmsg.group(1).startswith("Teleported ")
+                        ):
+                            self.irc.privmsg("#minecraft", privmsg.group(1))
+                    elif objective:
+                        cmd = objective.group(1)
+
+                        if cmd == "!fortune":
+                            self.privmsg(
+                                "[Fortune] {}".format(
+                                    self.fortune()
+                                    .decode("utf-8")
+                                    .replace("\n", " ")
+                                    .replace("\r", "")
+                                )
+                            )
+                    elif score:
+                        objective = score.group(1)
+                        player = score.group(2)
+                        value = score.group(3)
+
+                        if objective == "tentacle_tower_elevator":
+                            with open("data/tentacle_tower_elevator.json", "r") as f:
+                                data = f.read()
+                                j = json.loads(data)
+                                default_coord = j["floors"]["1"]
+                                if int(value) < 0:
+                                    player_id = getPlayerIdByName(player)
+                                    floor_number = None
+                                    for tenant in j:
+                                        if int(tenant["player"]) == int(player_id):
+                                            floor_number = int(tenant["floor"])
+                                            continue
+                                    floor_coords = (
+                                        j["floors"][str(floor_number)]
+                                        if j["floors"][str(floor_number)]
+                                        else default_coord
+                                    )
+
+                                else:
+                                    floor_coords = j.get("floors", {}).get(
+                                        value, default_coord  # default to main floor
+                                    )
+                                self.communicate(
+                                    "execute at {} in minecraft:overworld run tp @a[distance=..3] {}".format(
+                                        player, floor_coords
+                                    )
+                                )
+                                self.communicate(
+                                    "execute at {} run function custom:buildings/elevator/ding".format(
+                                        player
+                                    )
                                 )
 
+                                self.communicate(
+                                    "scoreboard players reset {} tentacle_tower_elevator".format(
+                                        player
+                                    )
+                                )
+                        elif objective == "tentacle_tower_lease":
+                            if getPlayerIdByName(player) != None:
+                                self.communicate(
+                                    'give {} written_book{pages:[\'["",{"text":"Squid Towers","bold":true,"underlined":true,"color":"blue"},{"text":" Lease Agreement","color":"reset","bold":true,"underlined":true},{"text":"\\n\\n","color":"reset"},{"text":"Tenant Name:","bold":true},{"text":" ","color":"reset"},{"selector":"{}"},{"text":"\\n\\n"},{"text":"Leased Space:","bold":true},{"text":" [Room #]\\n\\n","color":"reset"},{"text":"P.O. Box:","bold":true},{"text":" [#]","color":"reset"}]\',\'["",{"text":"You have been invited to stay at the luxurious "},{"text":"Squid Towers","bold":true,"color":"blue"},{"text":" condos in the beautiful new city of ","color":"reset"},{"text":"Squidelphia","bold":true,"color":"blue"},{"text":"!\\n\\nAs a VIP, your rent has been comped.\\n\\nYou will be given a condo and a P.O. Box.","color":"reset"}]\',\'["",{"text":"1. You "},{"text":"may not","bold":true},{"text":" modify the exterior walls or windows.\\n\\n2. You ","color":"reset"},{"text":"may change","bold":true},{"text":" the floors, ceilings, and room interiors. You may add walls.\\n\\n3. No contract. You may leave at any time.","color":"reset"}]\',\'["",{"text":"Enjoy your stay at "},{"text":"Squid Towers","bold":true,"color":"blue"},{"text":"!\\n\\n","color":"reset"},{"text":"Address","bold":true},{"text":":\\n","color":"reset"},{"text":"X","bold":true},{"text":": -7627,\\n","color":"reset"},{"text":"Y","bold":true},{"text":": 54,\\n","color":"reset"},{"text":"Z","bold":true},{"text":": -2419\\n\\n- Cult of Squid","color":"reset"}]\'],title:"Squid Towers Lease Agreement",author:"Cult of Squid",display:{Lore:["Squid Towers lease agreement in Squidelphia. Contains condo information."]}}'.format(
+                                        player,
+                                        player,
+                                        int(getPlayerIdByName(player)) + 101,
+                                    )
+                                )
                             else:
-                                floor_coords = j.get("floors", {}).get(
-                                    value, default_coord  # default to main floor
+                                self.communicate(
+                                    'tellraw {} ["",{"text":"Player not found","color":"red"}]'.format(
+                                        player
+                                    )
                                 )
-                            self.communicate(
-                                "execute at {} in minecraft:overworld run tp @a[distance=..3] {}".format(
-                                    player, floor_coords
-                                )
-                            )
-                            self.communicate(
-                                "execute at {} run function custom:buildings/elevator/ding".format(
-                                    player
-                                )
-                            )
-
-                            self.communicate(
-                                "scoreboard players reset {} tentacle_tower_elevator".format(
-                                    player
-                                )
-                            )
+            except Exception as e:
+                print(e)
+                pass
 
     def rawInput(self):
         while True:
