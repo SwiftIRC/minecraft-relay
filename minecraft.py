@@ -260,7 +260,7 @@ class Minecraft:
                 self.vc_ctf_handler != None
                 and self.vc_ctf_handler.native_id != th.native_id
             ):
-                break
+                return
             time.sleep(1)
             now = seconds(timestamp())
             remaining = end - now
