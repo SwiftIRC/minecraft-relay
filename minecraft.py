@@ -37,7 +37,10 @@ class Minecraft:
 
     def parseNick(self, nick):
         if ";" in nick:
-            m = re.match(r"(?:.+?\d+m)?([^?\x1b]+)(?:\?.+?\d+m)?", nick,)
+            m = re.match(
+                r"(?:.+?\d+m)?([^?\x1b]+)(?:\?.+?\d+m)?",
+                nick,
+            )
             if m:
                 nick = m.group(1)
         elif ";" in nick:
@@ -143,12 +146,19 @@ class Minecraft:
                                     .replace("\r", "")
                                 )
                             )
-                        elif cmd in ["!VC_CTF_5", "!VC_CTF_10", "!VC_CTF_15", "!VC_CTF_20"]:
+                        elif cmd in [
+                            "!VC_CTF_5",
+                            "!VC_CTF_10",
+                            "!VC_CTF_15",
+                            "!VC_CTF_20",
+                        ]:
                             if self.vc_ctf_handler != None:
                                 self.vc_ctf_handler = None
 
                             duration = int(cmd.split("_")[-1])
-                            self.vc_ctf_handler = threading.Thread(target=self.vc_ctf, args=(duration,))
+                            self.vc_ctf_handler = threading.Thread(
+                                target=self.vc_ctf, args=(duration,)
+                            )
                             self.vc_ctf_handler.start()
 
                     elif score:
@@ -246,16 +256,28 @@ class Minecraft:
         th = self.vc_ctf_handler
 
         while seconds(timestamp()) <= end:
-            if self.vc_ctf_handler.native_id != th.native_id:
+            if (
+                self.vc_ctf_handler != None
+                and self.vc_ctf_handler.native_id != th.native_id
+            ):
                 break
             time.sleep(1)
             now = seconds(timestamp())
             remaining = end - now
             if not remaining % 60:
                 d = int(remaining / 60)
-                self.tell("@a[team=VC_CTF_1]", "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""))
-                self.tell("@a[team=VC_CTF_2]", "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""))
-                self.tell("@a[team=VC_CTF_3]", "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""))
+                self.tell(
+                    "@a[team=VC_CTF_1]",
+                    "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""),
+                )
+                self.tell(
+                    "@a[team=VC_CTF_2]",
+                    "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""),
+                )
+                self.tell(
+                    "@a[team=VC_CTF_3]",
+                    "%d min%s remaining in the CTF" % (d, "s" if d != 1 else ""),
+                )
 
         self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
