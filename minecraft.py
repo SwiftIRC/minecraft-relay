@@ -235,7 +235,7 @@ class Minecraft:
 
     def vc_ctf(self, duration=5):
         timestamp = lambda: datetime.now().time()
-        seconds = lambda t: (t.hour * 60 + t.minute) * 60 + t.seconds
+        seconds = lambda t: (t.hour * 60 + t.minute) * 60 + t.second
 
         end = seconds(timestamp()) + duration * 60
 
