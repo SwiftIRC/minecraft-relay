@@ -40,6 +40,7 @@ class Minecraft:
             nick = m.group(1)
         elif ";" in nick:
             nick = nick[10:]
+        return nick
 
     def stdout(self):
         while True:
