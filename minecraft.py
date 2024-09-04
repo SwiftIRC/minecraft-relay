@@ -51,7 +51,7 @@ class Minecraft:
                     )
 
                     advancement = re.match(
-                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|has reached the goal)).*)",
+                        r"(?:\[[^]]+\] \[Server thread/INFO\]|\[\d+:\d+:\d+ INFO]): ((\S+ has (?:made the advancement|completed the challenge|reached the goal)).*)",
                         output,
                     )
 
@@ -122,6 +122,7 @@ class Minecraft:
                                 and privmsg.group(1).endswith(" has expired!")
                             )
                             and not privmsg.group(1).startswith("Teleported ")
+                            and not privmsg.group(1).startswith("Changed the block at")
                         ):
                             self.irc.privmsg("#minecraft", privmsg.group(1))
                     elif objective:
