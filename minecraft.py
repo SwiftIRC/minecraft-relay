@@ -34,6 +34,13 @@ class Minecraft:
         self.input = threading.Thread(target=self.rawInput)
         self.input.start()
 
+    def parseNick(self, nick):
+        if "?" in nick:
+            m = re.match(r"\?\d+;\d+;\d+m(.+?)\?\d+;\d+;\d+m")
+            nick = m.group(1)
+        elif ";" in nick:
+            nick = nick[10:]
+
     def stdout(self):
         while True:
             try:
@@ -78,9 +85,7 @@ class Minecraft:
                     )
 
                     if join:
-                        nick = join.group(1)
-                        if ";" in nick:
-                            nick = nick[10:]
+                        nick = self.parseNick(join.group(1))
                         self.irc.privmsg(
                             "#minecraft",
                             "--> {} {}".format(
@@ -89,9 +94,7 @@ class Minecraft:
                         )
                         self.players.append(nick)
                     elif part:
-                        nick = part.group(1)
-                        if ";" in nick:
-                            nick = nick[10:]
+                        nick = self.parseNick(part.group(1))
                         self.irc.privmsg("#minecraft", "<-- " + nick)
                         self.players.remove(nick)
                     elif advancement:
@@ -113,8 +116,6 @@ class Minecraft:
                                     self.privmsg(str(eval(equation)))
                                 except:
                                     self.privmsg("Error")
-
-                        # elif cmd == "register":
 
                     elif privmsg:
                         if (
@@ -141,7 +142,7 @@ class Minecraft:
                             )
                         elif cmd in ["!VC_CTF_5", "!VC_CTF_10", "!VC_CTF_15", "!VC_CTF_20"]:
                             duration = int(cmd.split("_")[-1])
-                            threading.Thread(target=vc_ctf, args=(duration,))
+                            threading.Thread(target=self.vc_ctf, args=(duration,))
 
                     elif score:
                         objective = score.group(1)
