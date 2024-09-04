@@ -36,8 +36,9 @@ class Minecraft:
 
     def parseNick(self, nick):
         if ";" in nick:
-            m = re.match(r"\?\d+;\d+;\d+m([^?]+)\?\d+;\d+;\d+m", nick,)
-            nick = m.group(1)
+            m = re.match(r"(?:.+?\d+m)?([^?]+)(?:\?.+?\d+m)?", nick,)
+            if m:
+                nick = m.group(1)
         elif ";" in nick:
             nick = nick[10:]
         return nick
