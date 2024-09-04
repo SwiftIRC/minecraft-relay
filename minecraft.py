@@ -217,6 +217,9 @@ class Minecraft:
     def privmsg(self, message):
         self.communicate("say %s" % message)
 
+    def tell(self, target, message):
+        self.communicate("tell %s %s" % (target, message))
+
     def set_irc(self, irc):
         self.irc = irc
 
@@ -232,8 +235,13 @@ class Minecraft:
 
         end = seconds + duration * 60
 
-        while seconds(seconds(timestamp)) <= end:
+        while seconds(timestamp) <= end:
             time.sleep(1)
+            now = seconds(timestamp)
+            if not (now % 60):
+                self.tell("@a[team=VC_CTF_1]", (end - now) / 60)
+                self.tell("@a[team=VC_CTF_2]", (end - now) / 60)
+                self.tell("@a[team=VC_CTF_3]", (end - now) / 60)
 
         self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
