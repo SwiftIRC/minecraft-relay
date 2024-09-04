@@ -250,10 +250,11 @@ class Minecraft:
                 break
             time.sleep(1)
             now = seconds(timestamp())
-            if not (now % 60):
-                self.tell("@a[team=VC_CTF_1]", "%d mins remaining in the CTF" % int((end - now) / 60))
-                self.tell("@a[team=VC_CTF_2]", "%d mins remaining in the CTF" % int((end - now) / 60))
-                self.tell("@a[team=VC_CTF_3]", "%d mins remaining in the CTF" % int((end - now) / 60))
+            remaining = end - now
+            if not remaining % 60:
+                self.tell("@a[team=VC_CTF_1]", "%d mins remaining in the CTF" % int(remaining / 60))
+                self.tell("@a[team=VC_CTF_2]", "%d mins remaining in the CTF" % int(remaining / 60))
+                self.tell("@a[team=VC_CTF_3]", "%d mins remaining in the CTF" % int(remaining / 60))
 
         self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
