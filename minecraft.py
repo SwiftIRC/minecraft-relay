@@ -14,6 +14,7 @@ class Minecraft:
     output = None
     input = None
     thread_lock = None
+    vc_ctf_handler = None
     players = []
 
     def set_thread_lock(self, lock):
@@ -143,9 +144,12 @@ class Minecraft:
                                 )
                             )
                         elif cmd in ["!VC_CTF_5", "!VC_CTF_10", "!VC_CTF_15", "!VC_CTF_20"]:
+                            if self.vc_ctf_handler != None:
+                                self.vc_ctf_handler = None
+
                             duration = int(cmd.split("_")[-1])
-                            th = threading.Thread(target=self.vc_ctf, args=(duration,))
-                            th.start()
+                            self.vc_ctf_handler = threading.Thread(target=self.vc_ctf, args=(duration,))
+                            self.vc_ctf_handler.start()
 
                     elif score:
                         objective = score.group(1)
@@ -239,14 +243,20 @@ class Minecraft:
 
         end = seconds(timestamp()) + duration * 60
 
+        th = self.vc_ctf_handler
+
         while seconds(timestamp()) <= end:
+            if self.vc_ctf_handler != th:
+                break
             time.sleep(1)
             now = seconds(timestamp())
             if not (now % 60):
-                self.tell("@a[team=VC_CTF_1]", (end - now) / 60)
-                self.tell("@a[team=VC_CTF_2]", (end - now) / 60)
-                self.tell("@a[team=VC_CTF_3]", (end - now) / 60)
+                self.tell("@a[team=VC_CTF_1]", "%d mins remaining in the CTF" % int((end - now) / 60))
+                self.tell("@a[team=VC_CTF_2]", "%d mins remaining in the CTF" % int((end - now) / 60))
+                self.tell("@a[team=VC_CTF_3]", "%d mins remaining in the CTF" % int((end - now) / 60))
 
         self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_3] -12035 71 800")
+
+        self.vc_ctf_handler = None
