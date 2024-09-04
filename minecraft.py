@@ -246,7 +246,7 @@ class Minecraft:
         th = self.vc_ctf_handler
 
         while seconds(timestamp()) <= end:
-            if self.vc_ctf_handler != th:
+            if self.vc_ctf_handler.native_id != th.native_id:
                 break
             time.sleep(1)
             now = seconds(timestamp())
