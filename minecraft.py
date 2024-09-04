@@ -252,9 +252,10 @@ class Minecraft:
             now = seconds(timestamp())
             remaining = end - now
             if not remaining % 60:
-                self.tell("@a[team=VC_CTF_1]", "%d mins remaining in the CTF" % int(remaining / 60))
-                self.tell("@a[team=VC_CTF_2]", "%d mins remaining in the CTF" % int(remaining / 60))
-                self.tell("@a[team=VC_CTF_3]", "%d mins remaining in the CTF" % int(remaining / 60))
+                d = int(remaining / 60)
+                self.tell("@a[team=VC_CTF_1]", "%d mins remaining in the CTF" % (d, "s" if d != 1 else ""))
+                self.tell("@a[team=VC_CTF_2]", "%d mins remaining in the CTF" % (d, "s" if d != 1 else ""))
+                self.tell("@a[team=VC_CTF_3]", "%d mins remaining in the CTF" % (d, "s" if d != 1 else ""))
 
         self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
         self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
