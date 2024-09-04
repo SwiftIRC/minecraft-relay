@@ -237,9 +237,9 @@ class Minecraft:
         timestamp = lambda: datetime.now().time()
         seconds = lambda t: (t.hour * 60 + t.minute) * 60 + t.seconds
 
-        end = seconds + duration * 60
+        end = seconds(timestamp()) + duration * 60
 
-        while seconds(timestamp) <= end:
+        while seconds(timestamp()) <= end:
             time.sleep(1)
             now = seconds(timestamp)
             if not (now % 60):
