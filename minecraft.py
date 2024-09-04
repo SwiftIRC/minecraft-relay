@@ -241,7 +241,7 @@ class Minecraft:
 
         while seconds(timestamp()) <= end:
             time.sleep(1)
-            now = seconds(timestamp)
+            now = seconds(timestamp())
             if not (now % 60):
                 self.tell("@a[team=VC_CTF_1]", (end - now) / 60)
                 self.tell("@a[team=VC_CTF_2]", (end - now) / 60)
