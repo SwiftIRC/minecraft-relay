@@ -2,6 +2,8 @@ import json
 from subprocess import Popen, PIPE, check_output
 import random
 import re
+from datetime import datetime
+import time
 import threading
 from mcfunctionhelper import getPlayerIdByName
 
@@ -137,6 +139,10 @@ class Minecraft:
                                     .replace("\r", "")
                                 )
                             )
+                        elif cmd in ["!VC_CTF_5", "!VC_CTF_10", "!VC_CTF_15", "!VC_CTF_20"]:
+                            duration = int(cmd.split("_")[-1])
+                            threading.Thread(target=vc_ctf, args=(duration,))
+
                     elif score:
                         objective = score.group(1)
                         player = score.group(2)
@@ -219,3 +225,16 @@ class Minecraft:
 
     def fortune(self):
         return check_output(["/usr/games/fortune", "-s"])
+
+    def vc_ctf(self, duration=5):
+        timestamp = lambda: datetime.now().time()
+        seconds = lambda t: (t.hour * 60 + t.minute) * 60 + t.seconds
+
+        end = seconds + duration * 60
+
+        while seconds(seconds(timestamp)) <= end:
+            time.sleep(1)
+
+        self.communicate("tp @a[team=VC_CTF_1] -12035 71 800")
+        self.communicate("tp @a[team=VC_CTF_2] -12035 71 800")
+        self.communicate("tp @a[team=VC_CTF_3] -12035 71 800")
