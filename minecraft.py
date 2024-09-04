@@ -36,7 +36,7 @@ class Minecraft:
 
     def parseNick(self, nick):
         if "?" in nick:
-            m = re.match(r"\?\d+;\d+;\d+m(.+?)\?\d+;\d+;\d+m")
+            m = re.match(r"\?\d+;\d+;\d+m([^?])\?\d+;\d+;\d+m")
             nick = m.group(1)
         elif ";" in nick:
             nick = nick[10:]
@@ -143,7 +143,8 @@ class Minecraft:
                             )
                         elif cmd in ["!VC_CTF_5", "!VC_CTF_10", "!VC_CTF_15", "!VC_CTF_20"]:
                             duration = int(cmd.split("_")[-1])
-                            threading.Thread(target=self.vc_ctf, args=(duration,))
+                            th = threading.Thread(target=self.vc_ctf, args=(duration,))
+                            th.start()
 
                     elif score:
                         objective = score.group(1)
